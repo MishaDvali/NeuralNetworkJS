@@ -21,33 +21,47 @@
 
 <body>
 	<h1><a href="index.html">CREATE AI TO PLAY THIS GAME</a></h1>
-	<canvas id="gameCanvas" width="400" height="400"></canvas><br>
 	<button onclick="reloadPage()"> RESTART </button>
+		<canvas id="gameCanvas" width="400" height="400"></canvas>
 
+
+	
 	<script>
 
-		const moveAmount = 10;
 		function reloadPage() {
 			location.reload();
 		}
+
 		const abs = Math.abs
 		const canvas = document.getElementById("gameCanvas");
 		const ctx = canvas.getContext("2d");
 
 		const circleRadius = 10;
-		let circleX = 170;
-		let circleY = circleRadius;
-		let dx = 2;
-		let dy = 2;
+		let circleX
+		let circleY
+		const circleSpeed = 2
+		let dx
+		let dy
 
-		let leftWall = 0
-		let rightWall = canvas.width
-		let topWall = 0
-		let BotWall = canvas.height
+		let leftWall
+		let rightWall
+		let topWall
+		let BotWall
+
+		//---------------------
+
+		const squareSize = 10;
+		let squareX
+		let squareY
+		let isMoving
+		const squareSpeed = 10;
+		const squareCrossingSpeed = 10;
+		let sdx
+		let sdy
 
 		function Win() {
 			alert("YOU WON. YOU LEFT LESS THAN 1% OF THE STARTING FIELD. " + FieldLeft().toString() + "% TO BE EXACT!!!")
-			setTimeout(reloadPage, 200)
+			StartGame()
 		}
 
 		function FieldLeft() {
@@ -56,7 +70,7 @@
 
 		function Lose() {
 			alert("YOU LEFT " + FieldLeft().toString() + "% OF THE FIELD")
-			setTimeout(reloadPage, 200)
+			StartGame()
 		}
 
 		function drawCircle() {
@@ -124,16 +138,6 @@
 
 
 
-
-		const squareSize = 10;
-		let squareX = 0;
-		let squareY = 0;
-		let isMoving = false;
-		let sdx = 0
-		let sdy = 0
-
-
-
 		function drawSquare() {
 			ctx.fillStyle = "blue";
 			ctx.fillRect(squareX, squareY, squareSize, squareSize);
@@ -155,20 +159,101 @@
 			return squareY >= BotWall - squareSize
 		}
 
-		function Move() {
+
+
+		function MoveLeft() {
+			if (squareY <= topWall || squareY >= BotWall - squareSize) {
+				squareX -= squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+
+		}
+
+		function MoveRigth() {
+			if (squareY <= topWall || squareY >= BotWall - squareSize) {
+				squareX += squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+		}
+
+		function MoveUp() {
+			if (squareX <= leftWall || squareX >= rightWall - squareSize) {
+				squareY -= squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+
+		}
+
+		function MoveDown() {
+			if (squareX <= leftWall || squareX >= rightWall - squareSize) {
+				squareY += squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+		}
+
+		function ContinueCrossing() {
 			squareX += sdx
 			squareY += sdy
 
+			let func
 			// Determine the opposite direction based on the current direction
 			let oppositeDirection;
 			if (sdx > 0) {
 				oppositeDirection = "left";
+				func = isRight
 			} else if (sdx < 0) {
 				oppositeDirection = "right";
+				func = isLeft 
 			} else if (sdy > 0) {
 				oppositeDirection = "up";
+				func = isBot
 			} else if (sdy < 0) {
 				oppositeDirection = "down";
+				func = isTop
 			}
 
 			switch (oppositeDirection) {
@@ -201,7 +286,8 @@
 					ctx.stroke();
 					break;
 			}
-			if (isTop() || isBot() || isRight() || isLeft()) {
+
+			if (func()) {
 				if (sdx != 0) {
 					if (circleY < squareY) {
 						BotWall = squareY
@@ -224,31 +310,49 @@
 				return
 			}
 
-			requestAnimationFrame(Move)
+			requestAnimationFrame(ContinueCrossing)
 		}
 
-		function StartMoving() {
+		function StartCrossing() {
+
+			if ((isTop() && isLeft()) ||
+			(isTop() && isRight()) ||
+			(isBot() && isLeft()) ||
+				(isBot() && isRight())) {
+				return
+			}
+			console.log("Start crossing")
 			if (isMoving) {
 				return
 			}
 
 			isMoving = true
 
-			if (squareX == leftWall) {
-				sdx = 5
-			} else if (squareX == rightWall - squareSize) {
-				sdx = -5
-			} else if (squareY == BotWall - squareSize) {
-				sdy = -5
+			if (isLeft()) {
+				sdx = squareSpeed
+			} else if (isRight()) {
+				sdx = -squareSpeed
+			} else if (isBot()) {
+				sdy = -squareSpeed
 			} else {
-				sdy = 5
+				sdy = squareSpeed
 			}
 
-			Move()
+			
+
+			ContinueCrossing()
 
 		}
 
-		function animate() {
+
+
+
+		//------------------------------NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+
+
+
+
+		function UpdateTheGame() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			updateCirclePosition();
 			drawCircle();
@@ -263,78 +367,60 @@
 			if (FieldLeft() <= 1) {
 				Win()
 			}
-			requestAnimationFrame(animate);
+			requestAnimationFrame(UpdateTheGame);
 		}
 
-		function U() {
-			if (squareX == leftWall || squareX == rightWall - squareSize) {
-				squareY -= moveAmount;
-			}
-		}
-		function D() {
+		StartGame()
 
-			if (squareX == leftWall || squareX == rightWall - squareSize) {
-				squareY += moveAmount;
-			}
-		}
-		function L() {
 
-			if (squareY == topWall || squareY == BotWall - squareSize) {
-				squareX -= moveAmount;
-			}
+		function StartGame() {
+			circleX = 170;
+			circleY = circleRadius;
+			dx = circleSpeed;
+			dy = circleSpeed;
+
+			leftWall = 0
+			rightWall = canvas.width
+			topWall = 0
+			BotWall = canvas.height
+
+
+
+
+			squareX = 0;
+			squareY = 0;
+			isMoving = false;
+			sdx = 0
+			sdy = 0
+
+			UpdateTheGame()
 		}
 
-		function R() {
-			if (squareY == topWall || squareY == BotWall - squareSize) {
-				squareX += moveAmount;
-			}
-
-		}
 		document.addEventListener("keydown", function (event) {
 			const keyPressed = event.key;
+			const moveAmount = 10;
 
 			if (keyPressed === "ArrowUp") {
-				if (squareX == leftWall || squareX == rightWall - squareSize) {
-					squareY -= moveAmount;
-				}
+																				MoveUp()
 			} else if (keyPressed === "ArrowDown") {
-				if (squareX == leftWall || squareX == rightWall - squareSize) {
-					squareY += moveAmount;
-				}
+																				MoveDown()
 			} else if (keyPressed === "ArrowLeft") {
-				if (squareY == topWall || squareY == BotWall - squareSize) {
-					squareX -= moveAmount;
-				}
+																				MoveLeft()
 			} else if (keyPressed === "ArrowRight") {
-				if (squareY == topWall || squareY == BotWall - squareSize) {
-					squareX += moveAmount;
-				}
-			} else if (keyPressed === "Enter") {
-				StartMoving()
-			}
-			if (isTop()) {
-				squareY = topWall
-			}
-			if (isBot()) {
-				squareY = BotWall - squareSize
-			}
-			if (isRight()) {
-				squareX = rightWall - squareSize
-			}
-			if (isLeft()) {
-				squareX = leftWall
-			}
+																				MoveRigth()
 
-			drawSquare();
+			} else if (keyPressed === "Enter") {
+																				StartCrossing()
+			}
+																				drawSquare()
 		});
 
-		animate()
 	</script>
-	<button onclick="L()">Left</button>
-	<button onclick="R()">Right</button>
-	<button onclick="U()">Up</button>
-	<button onclick="D()">Down</button>
-	<button onclick="StartMoving()">Cross</button>
+	<button onclick="MoveLeft()">Left</button>
+	<button onclick="MoveRigth()">Right</button>
+	<button onclick="MoveUp()">Up</button>
+	<button onclick="MoveDown()">Down</button>
+	<button onclick="StartCrossing()">Cross</button>
 
 
 </body>
