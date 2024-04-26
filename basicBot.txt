@@ -1,0 +1,1 @@
+set weight 0 0 0 1,set weight 0 1 0 -5,set weight 0 4 4 3,set weight 0 5 0 1000,set weight 0 5 2 -890,set bias 0 1 2,set activation_function 0 5 relu,set bias 0 5

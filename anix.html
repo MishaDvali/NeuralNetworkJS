@@ -34,798 +34,964 @@
 	<div id="cli-output"></div>
 	<script>
 
-const abs = Math.abs
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+
+		const abs = Math.abs
+		const canvas = document.getElementById("gameCanvas");
+		const ctx = canvas.getContext("2d");
+
+		const circleRadius = 10;
+		let circleX
+		let circleY
+		const circleSpeed = 2
+		let dx
+		let dy
+
+		let leftWall
+		let rightWall
+		let topWall
+		let BotWall
+
+		//---------------------
+
+		const squareSize = 10;
+		let squareX
+		let squareY
+		let isMoving
+		const squareSpeed = 10;
+		const squareCrossingSpeed = 10;
+		let sdx
+		let sdy
+
+		function Win() {
+			alert("YOU WON. YOU LEFT LESS THAN 1% OF THE STARTING FIELD. " + FieldLeft().toString() + "% TO BE EXACT!!!")
+			StartGame()
+		}
+
+		function FieldLeft() {
+			return 100 * ((rightWall - leftWall) * (BotWall - topWall)) / (canvas.width * canvas.height)
+		}
+
+		function Lose() {
+			alert("YOU LEFT " + FieldLeft().toString() + "% OF THE FIELD")
+			StartGame()
+		}
+
+		function drawCircle() {
+			ctx.beginPath();
+			ctx.fillStyle = "red";
+			ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
+			ctx.fill();
+		}
 
 
-const circleRadius = 10;
-let circleX
-let circleY
-const circleSpeed = 2
-let dx
-let dy
+		function updateCirclePosition() {
+			circleX += dx;
+			circleY += dy;
 
-let leftWall
-let rightWall
-let topWall
-let BotWall
-
-//---------------------
-
-const squareSize = 10;
-let squareX
-let squareY
-let isMoving
-const squareSpeed = 10;
-const squareCrossingSpeed = 10;
-let sdx
-let sdy
-
-function Win() {
-	alert("YOU WON. YOU LEFT LESS THAN 1% OF THE STARTING FIELD. " + FieldLeft().toString() + "% TO BE EXACT!!!")
-}
-
-function FieldLeft() {
-	return 100 * ((rightWall - leftWall) * (BotWall - topWall)) / (canvas.width * canvas.height)
-}
-
-function Lose() {
-	alert("YOU LEFT " + FieldLeft().toString() + "% OF THE FIELD")
-}
-
-function drawCircle() {
-	ctx.beginPath();
-	ctx.fillStyle = "red";
-	ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
-	ctx.fill();
-}
-
-
-function updateCirclePosition() {
-	circleX += dx;
-	circleY += dy;
-
-	if (isMoving) {
-		if (sdy != 0) {
-			if (sdy > 0) {
-				if (abs(circleX - squareX) < circleRadius) {
-					if (circleY - circleRadius < squareY) {
-						Lose()
+			if (isMoving) {
+				if (sdy != 0) {
+					if (sdy > 0) {
+						if (abs(circleX - squareX) < circleRadius) {
+							if (circleY - circleRadius < squareY) {
+								Lose()
+							}
+						}
+					} else {
+						if (abs(circleX - squareX) < circleRadius) {
+							if (circleY + circleRadius > squareY) {
+								Lose()
+							}
+						}
 					}
 				}
-			} else {
-				if (abs(circleX - squareX) < circleRadius) {
-					if (circleY + circleRadius > squareY) {
-						Lose()
+				if (sdx != 0) {
+					if (sdx > 0) {
+						if (abs(circleY - squareY) < circleRadius) {
+							if (circleX - circleRadius < squareX) {
+								Lose()
+							}
+						}
+					} else {
+						if (abs(circleY - squareY) < circleRadius) {
+							if (circleX + circleRadius > squareX) {
+								Lose()
+							}
+						}
 					}
 				}
 			}
+
+			if (circleX + circleRadius > rightWall) {
+				dx = -abs(dx);
+			}
+			if (circleX - circleRadius < leftWall) {
+				dx = abs(dx)
+			}
+			if (circleY + circleRadius > BotWall) {
+				dy = -abs(dy);
+			}
+			if (circleY - circleRadius < topWall) {
+				dy = abs(dy)
+			}
+
 		}
-		if (sdx != 0) {
+
+
+
+
+
+
+		function drawSquare() {
+			ctx.fillStyle = "blue";
+			ctx.fillRect(squareX, squareY, squareSize, squareSize);
+		}
+
+		function isLeft() {
+			return squareX <= leftWall
+		}
+
+		function isRight() {
+			return squareX >= rightWall - squareSize
+		}
+
+		function isTop() {
+			return squareY <= topWall
+		}
+
+		function isBot() {
+			return squareY >= BotWall - squareSize
+		}
+
+
+
+		function MoveLeft() {
+			if (squareY <= topWall || squareY >= BotWall - squareSize) {
+				squareX -= squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+
+		}
+
+		function MoveRigth() {
+			if (squareY <= topWall || squareY >= BotWall - squareSize) {
+				squareX += squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+		}
+
+		function MoveUp() {
+			if (squareX <= leftWall || squareX >= rightWall - squareSize) {
+				squareY -= squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+
+		}
+
+		function MoveDown() {
+			if (squareX <= leftWall || squareX >= rightWall - squareSize) {
+				squareY += squareCrossingSpeed;
+			}
+			if (isTop()) {
+				squareY = topWall
+			}
+			if (isBot()) {
+				squareY = BotWall - squareSize
+			}
+			if (isRight()) {
+				squareX = rightWall - squareSize
+			}
+			if (isLeft()) {
+				squareX = leftWall
+			}
+		}
+
+		function ContinueCrossing() {
+			squareX += sdx
+			squareY += sdy
+
+			let func
+			// Determine the opposite direction based on the current direction
+			let oppositeDirection;
 			if (sdx > 0) {
-				if (abs(circleY - squareY) < circleRadius) {
-					if (circleX - circleRadius < squareX) {
-						Lose()
+				oppositeDirection = "left";
+				func = isRight
+			} else if (sdx < 0) {
+				oppositeDirection = "right";
+				func = isLeft 
+			} else if (sdy > 0) {
+				oppositeDirection = "up";
+				func = isBot
+			} else if (sdy < 0) {
+				oppositeDirection = "down";
+				func = isTop
+			}
+
+			switch (oppositeDirection) {
+				case "left":
+					// Draw line from (squareX, squareY) to (0, squareY)
+					ctx.beginPath();
+					ctx.moveTo(squareX, squareY);
+					ctx.lineTo(leftWall, squareY);
+					ctx.stroke();
+					break;
+				case "right":
+					// Draw line from (squareX, squareY) to (canvasWidth, squareY)
+					ctx.beginPath();
+					ctx.moveTo(squareX, squareY);
+					ctx.lineTo(rightWall, squareY);
+					ctx.stroke();
+					break;
+				case "up":
+					// Draw line from (squareX, squareY) to (squareX, 0)
+					ctx.beginPath();
+					ctx.moveTo(squareX, squareY);
+					ctx.lineTo(squareX, topWall);
+					ctx.stroke();
+					break;
+				case "down":
+					// Draw line from (squareX, squareY) to (squareX, canvasHeight)
+					ctx.beginPath();
+					ctx.moveTo(squareX, squareY);
+					ctx.lineTo(squareX, BotWall);
+					ctx.stroke();
+					break;
+			}
+
+			if (func()) {
+				if (sdx != 0) {
+					if (circleY < squareY) {
+						BotWall = squareY + squareSize
+						squareY -= squareSize
+					} else {
+						topWall = squareY
+					}
+				} else {
+					if (circleX < squareX) {
+						rightWall = squareX
+						squareX -= squareSize
+					} else {
+						leftWall = squareX
 					}
 				}
+
+				isMoving = false
+				sdx = 0
+				sdy = 0
+				return
+			}
+
+			requestAnimationFrame(ContinueCrossing)
+		}
+
+		function StartCrossing() {
+
+			if ((isTop() && isLeft()) ||
+			(isTop() && isRight()) ||
+			(isBot() && isLeft()) ||
+				(isBot() && isRight())) {
+				return
+			}
+			console.log("Start crossing")
+			if (isMoving) {
+				return
+			}
+
+			isMoving = true
+
+			if (isLeft()) {
+				sdx = squareSpeed
+			} else if (isRight()) {
+				sdx = -squareSpeed
+			} else if (isBot()) {
+				sdy = -squareSpeed
 			} else {
-				if (abs(circleY - squareY) < circleRadius) {
-					if (circleX + circleRadius > squareX) {
-						Lose()
-					}
+				sdy = squareSpeed
+			}
+
+			
+
+			ContinueCrossing()
+
+		}
+
+
+
+
+		//------------------------------NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+
+
+
+
+
+		const activationFuncs = {
+			"abs": Math.abs,
+			"tanh": Math.tanh,
+			"sigmoid": (x) => 1 / (1 + Math.exp(-x)),
+			"relu": (x) => Math.max(0, x),
+			"leaky_relu": (x) => x >= 0 ? x : 0.01 * x, // You can adjust the slope of the negative part
+			"nothing": (x) => x
+		};
+		class Neuron {
+			constructor(amountOfWeights, bias = 0) {
+				this.bias = bias;
+				this.activationFunc = "nothing";
+				this.weights = [];
+				for (let i = 0; i < amountOfWeights; i++) {
+					this.weights.push(0);
 				}
 			}
-		}
-	}
-
-	if (circleX + circleRadius > rightWall) {
-		dx = -abs(dx);
-	}
-	if (circleX - circleRadius < leftWall) {
-		dx = abs(dx)
-	}
-	if (circleY + circleRadius > BotWall) {
-		dy = -abs(dy);
-	}
-	if (circleY - circleRadius < topWall) {
-		dy = abs(dy)
-	}
-
-}
-
-
-
-
-
-
-function drawSquare() {
-	ctx.fillStyle = "blue";
-	ctx.fillRect(squareX, squareY, squareSize, squareSize);
-}
-
-function isLeft() {
-	return squareX <= leftWall
-}
-
-function isRight() {
-	return squareX >= rightWall - squareSize
-}
-
-function isTop() {
-	return squareY <= topWall
-}
-
-function isBot() {
-	return squareY >= BotWall - squareSize
-}
-
-
-
-function MoveLeft() {
-	if (squareY == topWall || squareY == BotWall - squareSize) {
-		squareX -= squareCrossingSpeed;
-	}
-	if (isTop()) {
-		squareY = topWall
-	}
-	if (isBot()) {
-		squareY = BotWall - squareSize
-	}
-	if (isRight()) {
-		squareX = rightWall - squareSize
-	}
-	if (isLeft()) {
-		squareX = leftWall
-	}
-
-}
-
-function MoveRigth() {
-	if (squareY == topWall || squareY == BotWall - squareSize) {
-		squareX += squareCrossingSpeed;
-	}
-	if (isTop()) {
-		squareY = topWall
-	}
-	if (isBot()) {
-		squareY = BotWall - squareSize
-	}
-	if (isRight()) {
-		squareX = rightWall - squareSize
-	}
-	if (isLeft()) {
-		squareX = leftWall
-	}
-}
-
-function MoveUp() {
-	if (squareX == leftWall || squareX == rightWall - squareSize) {
-		squareY -= squareCrossingSpeed;
-	}
-	if (isTop()) {
-		squareY = topWall
-	}
-	if (isBot()) {
-		squareY = BotWall - squareSize
-	}
-	if (isRight()) {
-		squareX = rightWall - squareSize
-	}
-	if (isLeft()) {
-		squareX = leftWall
-	}
-
-}
-
-function MoveDown() {
-	if (squareX == leftWall || squareX == rightWall - squareSize) {
-		squareY += squareCrossingSpeed;
-	}
-	if (isTop()) {
-		squareY = topWall
-	}
-	if (isBot()) {
-		squareY = BotWall - squareSize
-	}
-	if (isRight()) {
-		squareX = rightWall - squareSize
-	}
-	if (isLeft()) {
-		squareX = leftWall
-	}
-}
-
-function ContinueCrossing() {
-	squareX += sdx
-	squareY += sdy
-
-	// Determine the opposite direction based on the current direction
-	let oppositeDirection;
-	if (sdx > 0) {
-		oppositeDirection = "left";
-	} else if (sdx < 0) {
-		oppositeDirection = "right";
-	} else if (sdy > 0) {
-		oppositeDirection = "up";
-	} else if (sdy < 0) {
-		oppositeDirection = "down";
-	}
-
-	switch (oppositeDirection) {
-		case "left":
-			// Draw line from (squareX, squareY) to (0, squareY)
-			ctx.beginPath();
-			ctx.moveTo(squareX, squareY);
-			ctx.lineTo(leftWall, squareY);
-			ctx.stroke();
-			break;
-		case "right":
-			// Draw line from (squareX, squareY) to (canvasWidth, squareY)
-			ctx.beginPath();
-			ctx.moveTo(squareX, squareY);
-			ctx.lineTo(rightWall, squareY);
-			ctx.stroke();
-			break;
-		case "up":
-			// Draw line from (squareX, squareY) to (squareX, 0)
-			ctx.beginPath();
-			ctx.moveTo(squareX, squareY);
-			ctx.lineTo(squareX, topWall);
-			ctx.stroke();
-			break;
-		case "down":
-			// Draw line from (squareX, squareY) to (squareX, canvasHeight)
-			ctx.beginPath();
-			ctx.moveTo(squareX, squareY);
-			ctx.lineTo(squareX, BotWall);
-			ctx.stroke();
-			break;
-	}
-	if (isTop() || isBot() || isRight() || isLeft()) {
-		if (sdx != 0) {
-			if (circleY < squareY) {
-				BotWall = squareY
-				squareY -= squareSize
-			} else {
-				topWall = squareY
+			SetWeights(weights) {
+				this.weights = weights;
 			}
-		} else {
-			if (circleX < squareX) {
-				rightWall = squareX
-				squareX -= squareSize
-			} else {
-				leftWall = squareX
+			ResetWeights(amountOfNInPrev) {
+				this.weights = [];
+				for (let i = 0; i < amountOfNInPrev; i++) {
+					this.weights.push(0);
+				}
+			}
+			SetWeight(index, weight) {
+				this.weights[index] = weight;
+			}
+			RemoveWeight(index) {
+				this.weights.splice(index, 1);
+			}
+			AddWeight(weight = 0) {
+				this.weights.push(weight);
+			}
+			SetBias(bias) {
+				this.bias = bias;
+			}
+			SetActivationFunc(activationFunc) {
+				const func = activationFuncs[activationFunc];
+				if (func == undefined) {
+					throw new Error("No such activation function");
+				}
+				this.activationFunc = activationFunc;
+			}
+			CalculateOutput(inputs) {
+				let activation = this.bias;
+				for (let i = 0; i < inputs.length; i++) {
+					activation += inputs[i] * this.weights[i];
+				}
+				const activationFunc = activationFuncs[this.activationFunc];
+				if (activationFunc == undefined) {
+					throw new Error("Activation func doesn't exist for some reason. Reload the page or change the wrong activation function");
+				}
+				return (activation);
 			}
 		}
+		class Layer {
+			constructor(next, amountOfNInprev, amountOfNeurons = 1) {
+				this.next = next;
+				this.amountOfNInprev = amountOfNInprev;
+				this.neurons = [];
+				for (let i = 0; i < amountOfNeurons; i++) {
+					this.neurons.push(new Neuron(amountOfNInprev));
+				}
+			}
+			GetNeuron(neuron) {
+				if (neuron < 0) {
+					throw new Error("Neuron index can't be less than 0");
+				}
+				if (neuron >= this.neurons.length) {
+					throw new Error("Neuron with such index doesn't exist");
+				}
+				return this.neurons[neuron];
+			}
+			GetNeuronsBiases() {
+				return this.neurons.map(n => n.bias);
+			}
+			GetNeuronsActivationFuncs() {
+				return this.neurons.map(n => n.activationFunc);
+			}
+			GetNeuronsWeights(neuron) {
+				if (neuron < 0) {
+					throw new Error("Neuron index can't be less than 0");
+				}
+				if (neuron >= this.neurons.length) {
+					throw new Error("Neuron with such index doesn't exist");
+				}
+				return this.neurons[neuron].weights;
+			}
+			RemoveNeuron(index) {
+				if (!this.next) {
+					throw new Error("It is the output layer, cant remove neuron");
+				}
+				if (this.neurons.length == 1) {
+					throw new Error("Can't delete the neuron. Layer has only this neuron");
+				}
+				this.neurons.splice(index, 1);
+				this.next.neurons.forEach((neuron) => {
+					neuron.RemoveWeight(index);
+				});
+			}
+			AddNeuron() {
+				this.neurons.push(new Neuron(this.amountOfNInprev));
+				if (!this.next) {
+					throw new Error("Can't add neurons to the output layer");
+				}
+				this.next.neurons.forEach((neuron) => {
+					neuron.AddWeight();
+				});
+			}
+			ResetWeights(amountOfNInPrev) {
+				this.neurons.forEach((neuron) => {
+					neuron.ResetWeights(amountOfNInPrev);
+				});
+			}
+			CalculateOuput(input) {
+				return this.neurons.map((neuron) => neuron.CalculateOutput(input));
+			}
+		}
+		class NN {
+			constructor(amountOfNInIL, amountOfNInOL) {
+				this.amountOfNInIL = amountOfNInIL;
+				this.layers = [new Layer(undefined, amountOfNInIL)];
+				for (let i = 1; i < amountOfNInOL; i++) {
+					this.layers[0].neurons.push(new Neuron(this.amountOfNInIL));
+				}
+			}
+			GetLayers() {
+				return this.layers.map(layer => layer.neurons.length);
+			}
+			GetNeuronsBiases(layer) {
+				if (layer < 0) {
+					throw new Error("Layer's index can't be less than 0");
+				}
+				if (layer >= this.layers.length) {
+					throw new Error("Layer with given index doesn't exist");
+				}
+				return this.layers[layer].GetNeuronsBiases();
+			}
+			GetNeuronsActivationFuncs(layer) {
+				if (layer < 0) {
+					throw new Error("Layer's index can't be less than 0");
+				}
+				if (layer >= this.layers.length) {
+					throw new Error("Layer with given index doesn't exist");
+				}
+				return this.layers[layer].GetNeuronsActivationFuncs();
+			}
+			GetNeuronsWeights(layer, neuron) {
+				if (layer < 0) {
+					throw new Error("Layer's index can't be less than 0");
+				}
+				if (layer >= this.layers.length) {
+					throw new Error("Layer with given index doesn't exist");
+				}
+				return this.layers[layer].GetNeuronsWeights(neuron);
+			}
+			AddLayer(index) {
+				let amountOfNInPrev;
+				if (index != 0) {
+					amountOfNInPrev = this.layers[index - 1].neurons.length;
+				}
+				else {
+					amountOfNInPrev = this.amountOfNInIL;
+				}
+				const newLayer = new Layer(this.layers[index], amountOfNInPrev);
+				this.layers[index].ResetWeights(1);
+				this.layers.splice(index, 0, newLayer); //insert
+			}
+			RemoveLayer(layer) {
+				if (this.layers.length == 1) {
+					throw new Error("Can't delete the only layer");
+				}
+				this.layers.splice(layer, 1);
+				if (0 == layer) {
+					this.layers[0].ResetWeights(this.amountOfNInIL);
+				}
+				else {
+					this.layers[layer].ResetWeights(this.layers[layer - 1].neurons.length);
+				}
+			}
+			CalculateOutput(input) {
+				for (let i = 0; i < this.layers.length; i++) {
+					input = this.layers[i].CalculateOuput(input);
+				}
+				return input;
+			}
+			SetWeight(layer, neuron, weight, val) {
+				this.layers[layer].neurons[neuron].SetWeight(weight, val);
+			}
+			SetBias(layer, neuron, val) {
+				this.layers[layer].neurons[neuron].SetBias(val);
+			}
+			AddNeuron(layer) {
+				this.layers[layer].AddNeuron();
+			}
+			RemoveNeuron(layer, neuron) {
+				this.layers[layer].RemoveNeuron(neuron);
+			}
+			SetActivationFunc(layer, neuron, activationFunc) {
+				if (activationFuncs[activationFunc] == undefined) {
+					throw new Error("Function doesn't exist. Check the spelling");
+				}
+				this.layers[layer].neurons[neuron].SetActivationFunc(activationFunc);
+			}
+		}
+		const nn = new NN(6, 6)
 
-		isMoving = false
-		sdx = 0
-		sdy = 0
-		return
-	}
-
-	requestAnimationFrame(ContinueCrossing)
-}
-
-function StartCrossing() {
-	if (isMoving) {
-		return
-	}
-
-	isMoving = true
-
-	if (squareX == leftWall) {
-		sdx = squareSpeed
-	} else if (squareX == rightWall - squareSize) {
-		sdx = -squareSpeed
-	} else if (squareY == BotWall - squareSize) {
-		sdy = -squareSpeed
-	} else {
-		sdy = squareSpeed
-	}
-
-	ContinueCrossing()
-
-}
-
-
-function StartGame() {
-	circleRadius = 10;
-	circleX = 170;
-	circleY = circleRadius;
-	dx = circleSpeed;
-	dy = circleSpeed;
-
-	leftWall = 0
-	rightWall = canvas.width
-	topWall = 0
-	BotWall = canvas.height
-
-
-
-
-	squareSize = 10;
-	squareX = 0;
-	squareY = 0;
-	isMoving = false;
-	squareSpeed = 10;
-	squareCrossingSpeed = 10;
-	sdx = 0
-	sdy = 0
-
-	UpdateTheGame()
-}
-
-
-
-//------------------------------NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-
-
-
-
-
-const activationFuncs = {
-	"abs": Math.abs,
-	"tanh": Math.tanh,
-	"sigmoid": (x) => 1 / (1 + Math.exp(-x)),
-	"relu": (x) => Math.max(0, x),
-	"leaky_relu": (x) => x >= 0 ? x : 0.01 * x, // You can adjust the slope of the negative part
-	"nothing": (x) => x
-};
-class Neuron {
-	constructor(amountOfWeights, bias = 0) {
-		this.bias = bias;
-		this.activationFunc = "nothing";
-		this.weights = [];
-		for (let i = 0; i < amountOfWeights; i++) {
-			this.weights.push(0);
-		}
-	}
-	SetWeights(weights) {
-		this.weights = weights;
-	}
-	ResetWeights(amountOfNInPrev) {
-		this.weights = [];
-		for (let i = 0; i < amountOfNInPrev; i++) {
-			this.weights.push(0);
-		}
-	}
-	SetWeight(index, weight) {
-		this.weights[index] = weight;
-	}
-	RemoveWeight(index) {
-		this.weights.splice(index, 1);
-	}
-	AddWeight(weight = 0) {
-		this.weights.push(weight);
-	}
-	SetBias(bias) {
-		this.bias = bias;
-	}
-	SetActivationFunc(activationFunc) {
-		const func = activationFuncs[activationFunc];
-		if (func == undefined) {
-			throw new Error("No such activation function");
-		}
-		this.activationFunc = activationFunc;
-	}
-	CalculateOutput(inputs) {
-		let activation = this.bias;
-		for (let i = 0; i < inputs.length; i++) {
-			activation += inputs[i] * this.weights[i];
-		}
-		const activationFunc = activationFuncs[this.activationFunc];
-		if (activationFunc == undefined) {
-			throw new Error("Activation func doesn't exist for some reason. Reload the page or change the wrong activation function");
-		}
-		return (activation);
-	}
-}
-class Layer {
-	constructor(next, amountOfNInprev, amountOfNeurons = 1) {
-		this.next = next;
-		this.amountOfNInprev = amountOfNInprev;
-		this.neurons = [];
-		for (let i = 0; i < amountOfNeurons; i++) {
-			this.neurons.push(new Neuron(amountOfNInprev));
-		}
-	}
-	GetNeuron(neuron) {
-		if (neuron < 0) {
-			throw new Error("Neuron index can't be less than 0");
-		}
-		if (neuron >= this.neurons.length) {
-			throw new Error("Neuron with such index doesn't exist");
-		}
-		return this.neurons[neuron];
-	}
-	GetNeuronsBiases() {
-		return this.neurons.map(n => n.bias);
-	}
-	GetNeuronsActivationFuncs() {
-		return this.neurons.map(n => n.activationFunc);
-	}
-	GetNeuronsWeights(neuron) {
-		if (neuron < 0) {
-			throw new Error("Neuron index can't be less than 0");
-		}
-		if (neuron >= this.neurons.length) {
-			throw new Error("Neuron with such index doesn't exist");
-		}
-		return this.neurons[neuron].weights;
-	}
-	RemoveNeuron(index) {
-		if (!this.next) {
-			throw new Error("It is the output layer, cant remove neuron");
-		}
-		if (this.neurons.length == 1) {
-			throw new Error("Can't delete the neuron. Layer has only this neuron");
-		}
-		this.neurons.splice(index, 1);
-		this.next.neurons.forEach((neuron) => {
-			neuron.RemoveWeight(index);
-		});
-	}
-	AddNeuron() {
-		this.neurons.push(new Neuron(this.amountOfNInprev));
-		if (!this.next) {
-			throw new Error("Can't add neurons to the output layer");
-		}
-		this.next.neurons.forEach((neuron) => {
-			neuron.AddWeight();
-		});
-	}
-	ResetWeights(amountOfNInPrev) {
-		this.neurons.forEach((neuron) => {
-			neuron.ResetWeights(amountOfNInPrev);
-		});
-	}
-	CalculateOuput(input) {
-		return this.neurons.map((neuron) => neuron.CalculateOutput(input));
-	}
-}
-class NN {
-	constructor(amountOfNInIL, amountOfNInOL) {
-		this.amountOfNInIL = amountOfNInIL;
-		this.layers = [new Layer(undefined, amountOfNInIL)];
-		for (let i = 1; i < amountOfNInOL; i++) {
-			this.layers[0].neurons.push(new Neuron(this.amountOfNInIL));
-		}
-	}
-	GetLayers() {
-		return this.layers.map(layer => layer.neurons.length);
-	}
-	GetNeuronsBiases(layer) {
-		if (layer < 0) {
-			throw new Error("Layer's index can't be less than 0");
-		}
-		if (layer >= this.layers.length) {
-			throw new Error("Layer with given index doesn't exist");
-		}
-		return this.layers[layer].GetNeuronsBiases();
-	}
-	GetNeuronsActivationFuncs(layer) {
-		if (layer < 0) {
-			throw new Error("Layer's index can't be less than 0");
-		}
-		if (layer >= this.layers.length) {
-			throw new Error("Layer with given index doesn't exist");
-		}
-		return this.layers[layer].GetNeuronsActivationFuncs();
-	}
-	GetNeuronsWeights(layer, neuron) {
-		if (layer < 0) {
-			throw new Error("Layer's index can't be less than 0");
-		}
-		if (layer >= this.layers.length) {
-			throw new Error("Layer with given index doesn't exist");
-		}
-		return this.layers[layer].GetNeuronsWeights(neuron);
-	}
-	AddLayer(index) {
-		let amountOfNInPrev;
-		if (index != 0) {
-			amountOfNInPrev = this.layers[index - 1].neurons.length;
-		}
-		else {
-			amountOfNInPrev = this.amountOfNInIL;
-		}
-		const newLayer = new Layer(this.layers[index], amountOfNInPrev);
-		this.layers[index].ResetWeights(1);
-		this.layers.splice(index, 0, newLayer); //insert
-	}
-	RemoveLayer(layer) {
-		if (this.layers.length == 1) {
-			throw new Error("Can't delete the only layer");
-		}
-		this.layers.splice(layer, 1);
-		if (0 == layer) {
-			this.layers[0].ResetWeights(this.amountOfNInIL);
-		}
-		else {
-			this.layers[layer].ResetWeights(this.layers[layer - 1].neurons.length);
-		}
-	}
-	CalculateOutput(input) {
-		for (let i = 0; i < this.layers.length; i++) {
-			input = this.layers[i].CalculateOuput(input);
-		}
-		return input;
-	}
-	SetWeight(layer, neuron, weight, val) {
-		this.layers[layer].neurons[neuron].SetWeight(weight, val);
-	}
-	SetBias(layer, neuron, val) {
-		this.layers[layer].neurons[neuron].SetBias(val);
-	}
-	AddNeuron(layer) {
-		this.layers[layer].AddNeuron();
-	}
-	RemoveNeuron(layer, neuron) {
-		this.layers[layer].RemoveNeuron(neuron);
-	}
-	SetActivationFunc(layer, neuron, activationFunc) {
-		if (activationFuncs[activationFunc] == undefined) {
-			throw new Error("Function doesn't exist. Check the spelling");
-		}
-		this.layers[layer].neurons[neuron].SetActivationFunc(activationFunc);
-	}
-}
-
-function ParseCMD(cmd, nn) {
-	const args = cmd.split(" ");
-	const len = args.length;
-	const n = Number;
-	switch (args[0]) {
-		case "set":
-			switch (args[1]) {
-				case "bias":
-					if (len != 5) {
-						throw new Error("Incorrect amount of args for setting bias, expected 5, got " + len.toString());
+		function ParseCMD(cmd) {
+			const args = cmd.split(" ");
+			const len = args.length;
+			const n = Number;
+			switch (args[0]) {
+				case "set":
+					switch (args[1]) {
+						case "bias":
+							if (len != 5) {
+								throw new Error("Incorrect amount of args for setting bias, expected 5, got " + len.toString());
+							}
+							nn.SetBias(n(args[2]), n(args[3]), n(args[4]));
+							return;
+						case "weight":
+							if (len != 6) {
+								throw new Error("Incoorect amount of args for setting weight, expected 6, got " + len.toString());
+							}
+							nn.SetWeight(n(args[2]), n(args[3]), n(args[4]), n(args[5]));
+							return;
+						case "activation_function":
+							if (len != 5) {
+								throw new Error("Incoorect amount of args for setting activation function, expected 5, got " + len.toString());
+							}
+							nn.SetActivationFunc(n(args[2]), n(args[3]), args[4]);
+							return;
+						default:
+							throw new Error("Unknown command for set: " + args[1]);
 					}
-					nn.SetBias(n(args[2]), n(args[3]), n(args[4]));
-					return;
-				case "weight":
-					if (len != 6) {
-						throw new Error("Incoorect amount of args for setting weight, expected 6, got " + len.toString());
+				case "get":
+					switch (args[1]) {
+						case "layers":
+							if (len != 2) {
+								throw new Error("Wrong amount of args for get layers: expected 2, got " + len.toString());
+							}
+							return nn.GetLayers();
+						case "biases":
+							if (len != 3) {
+								throw new Error("Wrong amount of args for get bias: expected 3, got " + len.toString());
+							}
+							return nn.GetNeuronsBiases(n(args[2]));
+						case "weights":
+							if (len != 4) {
+								throw new Error("Wrong amount of args for get weights: expected 4, got " + len.toString());
+							}
+							return nn.GetNeuronsWeights(n(args[2]), n(args[3]));
+						case "activation_function":
+							if (len != 3) {
+								throw new Error("Wrong amount of args for get activation_function: expected 3, got" + len.toString());
+							}
+							return nn.GetNeuronsActivationFuncs(n(args[2]));
+						default:
+							throw new Error("No such parameter to get is available. Make sure it is layers, biases, weights or activation_function");
 					}
-					nn.SetWeight(n(args[2]), n(args[3]), n(args[4]), n(args[5]));
-					return;
-				case "activation_function":
-					if (len != 5) {
-						throw new Error("Incoorect amount of args for setting activation function, expected 5, got " + len.toString());
+				case "add":
+					switch (args[1]) {
+						case "neuron":
+							if (len != 3) {
+								throw new Error("Wrong amount of paramaters for add neuron: expected 3, got " + len.toString());
+							}
+							nn.AddNeuron(n(args[3]));
+							return;
+						case "layer":
+							if (len != 3) {
+								throw new Error("Wrong amount of paramaters for add neuron: expected 3, got " + len.toString());
+							}
+							nn.AddLayer(n(args[3]));
+							return;
+						default:
+							throw new Error("No such option for add. Make sure it is neuron or layer");
 					}
-					nn.SetActivationFunc(n(args[2]), n(args[3]), args[4]);
-					return;
+				case "remove":
+					switch (args[1]) {
+						case "layer":
+							if (len != 3) {
+								throw new Error("Wrong amount of args for remove layer: expected 3, got " + len.toString());
+							}
+							nn.RemoveLayer(n(args[3]));
+							return;
+						case "neuron":
+							if (len != 4) {
+								throw new Error("Wrong amount of args for remove neuron: expected 4, got " + len.toString());
+							}
+							nn.RemoveNeuron(n(args[3]), n(args[4]));
+							return;
+						default:
+							throw new Error("No such option for remove. Make sure that it is layer or neuron");
+					}
 				default:
-					throw new Error("Unknown command for set: " + args[1]);
+					throw new Error("No such keyword. You can use set, get, add, remove");
 			}
-		case "get":
-			switch (args[1]) {
-				case "layers":
-					if (len != 2) {
-						throw new Error("Wrong amount of args for get layers: expected 2, got " + len.toString());
-					}
-					return nn.GetLayers();
-				case "biases":
-					if (len != 3) {
-						throw new Error("Wrong amount of args for get bias: expected 3, got " + len.toString());
-					}
-					return nn.GetNeuronsBiases(n(args[2]));
-				case "weights":
-					if (len != 4) {
-						throw new Error("Wrong amount of args for get weights: expected 4, got " + len.toString());
-					}
-					return nn.GetNeuronsWeights(n(args[2]), n(args[3]));
-				case "activation_function":
-					if (len != 3) {
-						throw new Error("Wrong amount of args for get activation_function: expected 3, got" + len.toString());
-					}
-					return nn.GetNeuronsActivationFuncs(n(args[2]));
-				default:
-					throw new Error("No such parameter to get is available. Make sure it is layers, biases, weights or activation_function");
-			}
-		case "add":
-			switch (args[1]) {
-				case "neuron":
-					if (len != 3) {
-						throw new Error("Wrong amount of paramaters for add neuron: expected 3, got " + len.toString());
-					}
-					nn.AddNeuron(n(args[3]));
-					return;
-				case "layer":
-					if (len != 3) {
-						throw new Error("Wrong amount of paramaters for add neuron: expected 3, got " + len.toString());
-					}
-					nn.AddLayer(n(args[3]));
-					return;
-				default:
-					throw new Error("No such option for add. Make sure it is neuron or layer");
-			}
-		case "remove":
-			switch (args[1]) {
-				case "layer":
-					if (len != 3) {
-						throw new Error("Wrong amount of args for remove layer: expected 3, got " + len.toString());
-					}
-					nn.RemoveLayer(n(args[3]));
-					return;
-				case "neuron":
-					if (len != 4) {
-						throw new Error("Wrong amount of args for remove neuron: expected 4, got " + len.toString());
-					}
-					nn.RemoveNeuron(n(args[3]), n(args[4]));
-					return;
-				default:
-					throw new Error("No such option for remove. Make sure that it is layer or neuron");
-			}
-		default:
-			throw new Error("No such keyword. You can use set, get, add, remove");
-	}
-}
-// const log = console.log
-// function test() {
-// 	const nn = new NN(2, 3)
-//
-// 	log("TEST1")
-// 	log("[ 0, 0, 0 ]")
-// 	log(nn.CalculateOutput([0, 0]))
-// 	log()
-//
-// 	nn.SetWeight(0, 0, 0, 5)
-// 	nn.SetWeight(0, 1, 0, 6)
-// 	nn.SetWeight(0, 2, 0, 8)
-// 	nn.SetWeight(0, 2, 1, 1)
-//
-// 	log("TEST2")
-// 	log("[ 10, 12, 17 ]")
-// 	log(nn.CalculateOutput([2, 1]))
-// 	log()
-//
-// 	nn.AddLayer(0)
-// 	nn.SetWeight(0, 0, 0, 2)
-// 	nn.SetWeight(0, 0, 1, 3)
-// 	nn.SetWeight(1, 0, 0, 1)
-// 	nn.SetWeight(1, 1, 0, -1)
-// 	nn.SetWeight(1, 2, 0, 1)
-// 	nn.SetBias(1, 2, 4)
-//
-// 	log("TEST3")
-// 	log("[ 160, -160, 164]")
-// 	log(nn.CalculateOutput([50, 20]))
-// 	log()
-//
-// 	nn.AddNeuron(0)
-// 	nn.SetWeight(0, 1, 0, -1)
-// 	nn.SetWeight(0, 1, 1, -1)
-// 	nn.SetWeight(1, 0, 1, 1)
-// 	nn.SetWeight(1, 1, 1, 1)
-// 	nn.SetWeight(1, 2, 1, 1)
-//
-// 	log("TEST4")
-// 	log('[ 90, -230, 94 ]')
-// 	log(nn.CalculateOutput([50, 20]))
-// 	log()
-//
-// 	nn.RemoveNeuron(0, 1)
-//
-// 	log("TEST5")
-// 	log("[ 160, -160, 164]")
-// 	log(nn.CalculateOutput([50, 20]))
-// 	log()
-//
-// 	nn.RemoveLayer(0)
-// 	nn.SetWeight(0, 0, 0, -1)
-// 	nn.SetWeight(0, 1, 1, 1)
-// 	nn.SetBias(0, 2, 0)
-//
-// 	log("TEST6")
-// 	log("[ -100, 40, 0]")
-// 	log(nn.CalculateOutput([100, 40]))
-//
-// 	nn.SetActivationFunc(0, 0, "abs")
-// 	nn.SetActivationFunc(0, 1, "sigmoid")
-// 	nn.SetActivationFunc(0, 2, "relu")
-//
-//
-// 	log("TEST7")
-// 	log("[ -100, 1, 0]")
-// 	log(nn.CalculateOutput([100, 40]))
-// }
-//
-// test()
-
-
-const nn = new NN(6, 6)
-
-function InputIntoNN() {
-	return [
-		(squareX - leftWall) / (rightWall - leftWall),
-		(1 - ((squareY - topWall) / (topWall - BotWall))),
-		(circleX - leftWall) / (rightWall - leftWall),
-		(1 - ((circleY - topWall) / (topWall - BotWall))),
-		dx,
-		-dy
-	]
-}
-
-function DecideToMove() {
-	inputs = InputIntoNN()
-	ouputs = nn.CalculateOutput(inputs)
-	decision = Math.max(ouputs)
-
-
-	switch (decision) {
-		case inputs[1]:
-			MoveLeft()
-			break
-		case inputs[2]:
-			MoveRigth()
-			break
-		case inputs[3]:
-			MoveUp()
-			break
-		case inputs[4]:
-			MoveDown()
-			break
-		case inputs[5]:
-			StartCrossing()
-			break
-	}
-}
-
-
-function UpdateTheGame() {
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	updateCirclePosition();
-	drawCircle();
-	drawSquare()
-	ctx.beginPath();
-	ctx.moveTo(leftWall, topWall);
-	ctx.lineTo(rightWall, topWall);
-	ctx.lineTo(rightWall, BotWall)
-	ctx.lineTo(leftWall, BotWall)
-	ctx.lineTo(leftWall, topWall)
-	ctx.stroke();
-	if (FieldLeft() <= 1) {
-		Win()
-	}
-	if (!isMoving) {
-		DecideToMove()
-	}
-	requestAnimationFrame(UpdateTheGame);
-}
-
-StartGame()
-
-
-//---------------CMD LOGIC
-
-function executeCommand() {
-	var input = document.getElementById('cli-input').value;
-	var output = document.getElementById('cli-output');
-	output.innerHTML += '<p>> ' + input + '</p>'; // Displaying entered command
-
-	// Here you can add logic to execute the entered command
-	// For demonstration purposes, I'm just echoing back the command
-	output.innerHTML += '<p>' + executeShellCommand(input) + '</p>';
-}
-
-function executeShellCommand(command) {
-	try {
-		let output = ParseCMD(command)
-		if (output == undefined) {
-			output = "Executed successfully"
 		}
-		return output
-	} catch (e) {
-		return e.message
-	}
-}
+		// const log = console.log
+		// function test() {
+		// 	const nn = new NN(2, 3)
+		//
+		// 	log("TEST1")
+		// 	log("[ 0, 0, 0 ]")
+		// 	log(nn.CalculateOutput([0, 0]))
+		// 	log()
+		//
+		// 	nn.SetWeight(0, 0, 0, 5)
+		// 	nn.SetWeight(0, 1, 0, 6)
+		// 	nn.SetWeight(0, 2, 0, 8)
+		// 	nn.SetWeight(0, 2, 1, 1)
+		//
+		// 	log("TEST2")
+		// 	log("[ 10, 12, 17 ]")
+		// 	log(nn.CalculateOutput([2, 1]))
+		// 	log()
+		//
+		// 	nn.AddLayer(0)
+		// 	nn.SetWeight(0, 0, 0, 2)
+		// 	nn.SetWeight(0, 0, 1, 3)
+		// 	nn.SetWeight(1, 0, 0, 1)
+		// 	nn.SetWeight(1, 1, 0, -1)
+		// 	nn.SetWeight(1, 2, 0, 1)
+		// 	nn.SetBias(1, 2, 4)
+		//
+		// 	log("TEST3")
+		// 	log("[ 160, -160, 164]")
+		// 	log(nn.CalculateOutput([50, 20]))
+		// 	log()
+		//
+		// 	nn.AddNeuron(0)
+		// 	nn.SetWeight(0, 1, 0, -1)
+		// 	nn.SetWeight(0, 1, 1, -1)
+		// 	nn.SetWeight(1, 0, 1, 1)
+		// 	nn.SetWeight(1, 1, 1, 1)
+		// 	nn.SetWeight(1, 2, 1, 1)
+		//
+		// 	log("TEST4")
+		// 	log('[ 90, -230, 94 ]')
+		// 	log(nn.CalculateOutput([50, 20]))
+		// 	log()
+		//
+		// 	nn.RemoveNeuron(0, 1)
+		//
+		// 	log("TEST5")
+		// 	log("[ 160, -160, 164]")
+		// 	log(nn.CalculateOutput([50, 20]))
+		// 	log()
+		//
+		// 	nn.RemoveLayer(0)
+		// 	nn.SetWeight(0, 0, 0, -1)
+		// 	nn.SetWeight(0, 1, 1, 1)
+		// 	nn.SetBias(0, 2, 0)
+		//
+		// 	log("TEST6")
+		// 	log("[ -100, 40, 0]")
+		// 	log(nn.CalculateOutput([100, 40]))
+		//
+		// 	nn.SetActivationFunc(0, 0, "abs")
+		// 	nn.SetActivationFunc(0, 1, "sigmoid")
+		// 	nn.SetActivationFunc(0, 2, "relu")
+		//
+		//
+		// 	log("TEST7")
+		// 	log("[ -100, 1, 0]")
+		// 	log(nn.CalculateOutput([100, 40]))
+		// }
+		//
+		// test()
+
+
+
+		function InputIntoNN() {
+			return [
+				(squareX - leftWall) / (rightWall - leftWall),
+				(1 - ((squareY - topWall) / (topWall - BotWall))),
+				(circleX - leftWall) / (rightWall - leftWall),
+				(1 - ((circleY - topWall) / (topWall - BotWall))),
+				dx,
+				-dy
+			]
+		}
+
+		function indexOfMax(arr) {
+			if (arr.length === 0) {
+				return -1;
+			}
+
+			var max = arr[0];
+			var maxIndex = 0;
+
+			for (var i = 1; i < arr.length; i++) {
+				if (arr[i] > max) {
+					maxIndex = i;
+					max = arr[i];
+				}
+			}
+
+			return maxIndex;
+		}
+
+		function DecideToMove() {
+			const inputs = InputIntoNN()
+			const outputs = nn.CalculateOutput(inputs)
+			const decision = indexOfMax(outputs)
+
+
+			switch (decision) {
+				case 0:
+					MoveLeft()
+					break
+				case 1:
+					MoveRigth()
+					break
+				case 2:
+					MoveUp()
+					break
+				case 3:
+					MoveDown()
+					break
+				case 4:
+					StartCrossing()
+					break
+				case 5:
+					break
+				default:
+					console.log("The highest activation was not found")
+			}
+		}
+
+
+		function UpdateTheGame() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			updateCirclePosition();
+			drawCircle();
+			drawSquare()
+			ctx.beginPath();
+			ctx.moveTo(leftWall, topWall);
+			ctx.lineTo(rightWall, topWall);
+			ctx.lineTo(rightWall, BotWall)
+			ctx.lineTo(leftWall, BotWall)
+			ctx.lineTo(leftWall, topWall)
+			ctx.stroke();
+			if (FieldLeft() <= 1) {
+				Win()
+			}
+			if (!isMoving) {
+				DecideToMove()
+			}
+			requestAnimationFrame(UpdateTheGame);
+		}
+
+		StartGame()
+
+
+		//---------------CMD LOGIC
+		let cmdHistory = []
+
+		function executeCommand() {
+			var cmds = document.getElementById('cli-input').value.split(",");
+			cmds.forEach((input) => {
+				var output = document.getElementById('cli-output');
+				output.innerHTML += '<p> ' + input + '</p>'; // Displaying entered command
+
+				output.innerHTML += '<p>' + executeShellCommand(input) + '</p>';
+				cmdHistory.push(input)
+
+			})
+		}
+
+		function executeShellCommand(command) {
+			try {
+				if (command == "history") {
+					return showCommandHistory()
+				}
+				let output = ParseCMD(command)
+				if (output == undefined) {
+					output = "Executed successfully"
+				}
+				return output
+			} catch (e) {
+				return e.message
+			}
+		}
+
+		function showCommandHistory() {
+			let historyString = ""
+			for (var i = 0; i < cmdHistory.length; i++) {
+				historyString += cmdHistory[i] + ",";
+			}
+			return historyString
+		}
+
+		function StartGame() {
+			circleX = 170;
+			circleY = circleRadius;
+			dx = circleSpeed;
+			dy = circleSpeed;
+
+			leftWall = 0
+			rightWall = canvas.width
+			topWall = 0
+			BotWall = canvas.height
+
+
+
+
+			squareX = 0;
+			squareY = 0;
+			isMoving = false;
+			sdx = 0
+			sdy = 0
+
+			UpdateTheGame()
+		}
 
 
 	</script>
+
+	<h1>Neural Network Command Interface Documentation</h1>
+
+	<h2>Overview</h2>
+	<p>This document explains the command interface for interacting with a neural network</p>
+
+	<h2>Important Notes</h2>
+	<ul>
+		<li> Indexes start with 0</li>
+		<li> layers start with the first hidden, the last layer is the output layer</li>
+	</ul>
+
+	<h2>Commands</h2>
+
+	<h3>0. history</h3>
+
+	<p> returns history of your commands with commas. They are used to indicate new commands. <br>
+		Pass your commands into a new browser tab to load your previous neural network </p>
+
+
+	<h3>1. Set Command</h3>
+	<p><strong>Syntax:</strong> set &lt;option&gt; &lt;parameters&gt;</p>
+	<p><strong>Description:</strong> Sets various properties of the neural network.</p>
+	<ul>
+		<li><strong>set bias &lt;layer&gt; &lt;neuron&gt; &lt;value&gt;</strong>: Set bias value for a neuron in a specific
+			layer.</li>
+		<li><strong>set weight &lt;layer&gt; &lt;neuron&gt; &lt;prevNeuron&gt; &lt;value&gt;</strong>: Set weight value for
+			a connection between neurons.</li>
+		<li><strong>set activation_function &lt;layer&gt; &lt;neuron&gt; &lt;function&gt;</strong>: Set activation function
+			for a neuron in a specific layer. <br>
+			Here are the functions you can use: <ul>
+				<li> abs </li>
+				<li> tanh </li>
+				<li> sigmoid </li>
+				<li> relu </li>
+				<li> leaky_relu </li>
+				<li> nothing </li>
+			</ul>
+		</li>
+	</ul>
+
+	<h3>2. Get Command</h3>
+	<p><strong>Syntax:</strong> get &lt;option&gt; &lt;parameters&gt;</p>
+	<p><strong>Description:</strong> Retrieves information from the neural network.</p>
+	<ul>
+		<li><strong>get layers</strong>: Get the number of neurons in each layer.</li>
+		<li><strong>get biases &lt;layer&gt;</strong>: Get the bias values for neurons in a specific layer.</li>
+		<li><strong>get weights &lt;layer&gt; &lt;neuron&gt;</strong>: Get the weights of connections for a neuron in a
+			specific layer.</li>
+		<li><strong>get activation_function &lt;layer&gt; &lt;neuron&gt;</strong>: Get the activation function for a neuron
+			in a specific layer.</li>
+	</ul>
+
+	<h3>3. Add Command</h3>
+	<p><strong>Syntax:</strong> add &lt;option&gt; &lt;parameters&gt;</p>
+	<p><strong>Description:</strong> Adds new elements to the neural network.</p>
+	<ul>
+		<li><strong>add neuron &lt;layer&gt;</strong>: Add a neuron to a specific layer.</li>
+		<li><strong>add layer &lt;index&gt;</strong>: Add a new layer at the specified index.</li>
+	</ul>
+
+	<h3>4. Remove Command</h3>
+	<p><strong>Syntax:</strong> remove &lt;option&gt; &lt;parameters&gt;</p>
+	<p><strong>Description:</strong> Removes elements from the neural network.</p>
+	<ul>
+		<li><strong>remove layer &lt;index&gt;</strong>: Remove a layer at the specified index.</li>
+		<li><strong>remove neuron &lt;layer&gt; &lt;neuron&gt;</strong>: Remove a neuron from a specific layer.</li>
+	</ul>
+
+	<h2>Input Layer</h2>
+	<p>The input layer of the neural network receives information about the game state to make decisions. Each neuron in
+		the input layer represents a specific aspect of the game state.</p>
+	<ul>
+		<li><strong>Neuron 0:</strong> Distance of the square from the left wall of the game field (in percentage from 0 to
+			1).</li>
+		<li><strong>Neuron 1:</strong> Distance of the square from the bottom wall of the game field (in percentage from 0
+			to 1).</li>
+		<li><strong>Neuron 2:</strong> Distance of the ball from the left wall of the game field (in percentage from 0 to
+			1).</li>
+		<li><strong>Neuron 3:</strong> Distance of the ball from the bottom wall of the game field (in percentage from 0 to
+			1).</li>
+		<li><strong>Neuron 4:</strong> Direction of the ball's movement in the x-axis. (1 if to the right, -1 if to the
+			left)</li>
+		<li><strong>Neuron 5:</strong> Direction of the ball's movement in the y-axis. (1 if upwards, -1 if downwards)</li>
+	</ul>
+
+	<h2>Output Layer</h2>
+	<p>The output layer of the neural network determines the action to be taken based on the input received. Each neuron
+		in the output layer represents a possible action. The action with the highest value will be chosen</p>
+	<ul>
+		<li><strong>Neuron 0:</strong> Move left.</li>
+		<li><strong>Neuron 1:</strong> Move right.</li>
+		<li><strong>Neuron 2:</strong> Move up.</li>
+		<li><strong>Neuron 3:</strong> Move down.</li>
+		<li><strong>Neuron 4:</strong> Cross </li>
+		<li><strong>Neuron 5:</strong> Wait (no action).</li>
+	</ul>
+
+
+	<h2>Usage Example</h2>
+	<h3> Here is a small bot. Paste all together to recreate it. If you do one by one<br>
+		you won't need the commas
+	</h3>
+	<pre>
+	<code> set weight 0 0 0 1,set weight 0 1 0 -5,set weight 0 4 4 3,set weight 0 5 0 1000,set weight 0 5 2 -890,set bias 0 1 2,set activation_function 0 5 relu,set bias 0 5 </code>
+		<code>
+		set weight 0 0 0 1<br>
+		set weight 0 1 0 -5<br>
+		set weight 0 4 4 3<br>
+		set weight 0 5 0 1000<br>
+		set weight 0 5 2 -890<br>
+		set bias 0 1 2<br>
+		set activation_function 0 5 relu<br>
+		set bias 0 5
+		</code>
+	</pre>
 
 </body>
 
