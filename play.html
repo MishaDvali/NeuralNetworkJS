@@ -9,22 +9,27 @@
 		#gameCanvas {
 			border: 1px solid black;
 		}
-		 button {
-    font-size: 20px; /* Increase font size */
-    padding: 10px 20px; /* Add padding to increase button size */
-  }
+
+		button {
+			font-size: 20px;
+			/* Increase font size */
+			padding: 10px 20px;
+			/* Add padding to increase button size */
+		}
 	</style>
 </head>
 
 <body>
 	<h1><a href="index.html">CREATE AI TO PLAY THIS GAME</a></h1>
 	<canvas id="gameCanvas" width="400" height="400"></canvas><br>
-	 <button onclick="reloadPage()"> RESTART </button>
+	<button onclick="reloadPage()"> RESTART </button>
 
 	<script>
-    function reloadPage() {
-      location.reload();
-    }
+
+		const moveAmount = 10;
+		function reloadPage() {
+			location.reload();
+		}
 		const abs = Math.abs
 		const canvas = document.getElementById("gameCanvas");
 		const ctx = canvas.getContext("2d");
@@ -261,10 +266,32 @@
 			requestAnimationFrame(animate);
 		}
 
+		function U() {
+			if (squareX == leftWall || squareX == rightWall - squareSize) {
+				squareY -= moveAmount;
+			}
+		}
+		function D() {
 
+			if (squareX == leftWall || squareX == rightWall - squareSize) {
+				squareY += moveAmount;
+			}
+		}
+		function L() {
+
+			if (squareY == topWall || squareY == BotWall - squareSize) {
+				squareX -= moveAmount;
+			}
+		}
+
+		function R() {
+			if (squareY == topWall || squareY == BotWall - squareSize) {
+				squareX += moveAmount;
+			}
+
+		}
 		document.addEventListener("keydown", function (event) {
 			const keyPressed = event.key;
-			const moveAmount = 10;
 
 			if (keyPressed === "ArrowUp") {
 				if (squareX == leftWall || squareX == rightWall - squareSize) {
@@ -303,7 +330,13 @@
 
 		animate()
 	</script>
+	<button onclick="L()">Left</button>
+	<button onclick="R()">Right</button>
+	<button onclick="U()">Up</button>
+	<button onclick="D()">Down</button>
+	<button onclick="StartMoving()">Cross</button>
+
+
 </body>
 
 </html>
-
