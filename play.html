@@ -21,10 +21,10 @@
 
 <body>
 	<h1><a href="index.html">CREATE AI TO PLAY THIS GAME</a></h1>
-		<canvas id="gameCanvas" width="400" height="400"></canvas>
+	<canvas id="gameCanvas" width="400" height="400"></canvas>
 
 
-	
+
 	<script>
 
 		function reloadPage() {
@@ -279,7 +279,7 @@
 				func = isRight
 			} else if (sdx < 0) {
 				oppositeDirection = "right";
-				func = isLeft 
+				func = isLeft
 			} else if (sdy > 0) {
 				oppositeDirection = "up";
 				func = isBot
@@ -319,8 +319,8 @@
 		function StartCrossing() {
 
 			if ((isTop() && isLeft()) ||
-			(isTop() && isRight()) ||
-			(isBot() && isLeft()) ||
+				(isTop() && isRight()) ||
+				(isBot() && isLeft()) ||
 				(isBot() && isRight())) {
 				return
 			}
@@ -341,7 +341,7 @@
 				sdy = squareSpeed
 			}
 
-			
+
 
 			ContinueCrossing()
 
@@ -374,9 +374,11 @@
 		}
 
 		StartGame()
+		UpdateTheGame()
 
 
 		function StartGame() {
+
 			circleX = 170;
 			circleY = circleRadius;
 			dx = circleSpeed;
@@ -396,7 +398,6 @@
 			sdx = 0
 			sdy = 0
 
-			UpdateTheGame()
 		}
 
 		document.addEventListener("keydown", function (event) {
@@ -404,18 +405,18 @@
 			const moveAmount = 10;
 
 			if (keyPressed === "ArrowUp") {
-																				MoveUp()
+				MoveUp()
 			} else if (keyPressed === "ArrowDown") {
-																				MoveDown()
+				MoveDown()
 			} else if (keyPressed === "ArrowLeft") {
-																				MoveLeft()
+				MoveLeft()
 			} else if (keyPressed === "ArrowRight") {
-																				MoveRigth()
+				MoveRigth()
 
 			} else if (keyPressed === "Enter") {
-																				StartCrossing()
+				StartCrossing()
 			}
-																				drawSquare()
+			drawSquare()
 		});
 
 	</script>
